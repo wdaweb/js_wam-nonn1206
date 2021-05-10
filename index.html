@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+
+    <title>Document</title>
+    <style>
+        html,
+        body {
+
+
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Caveat', cursive;
+            background-color: wheat;
+            background-image: url(./images/ba.png);
+
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        .game1 {
+            height: 800px;
+            width: 800px;
+            background-image: url(./images/c1.png);
+            background-repeat: no-repeat;
+            background-size: contain;
+            position: relative;
+            /* 滑鼠 第一個數字左右 第二數字垂直 */
+            cursor: url(./images/f.png) 100 0, auto;
+
+        }
+
+        .cur {
+            cursor: url(./images/f3.png) 100 0, auto;
+        }
+
+        .holes {
+            position: absolute;
+            /* transform-origin: left center; */
+        }
+
+        #btn-start {
+            text-align: center;
+            font-size: 30px;
+            width: 200px;
+            background: whitesmoke;
+            line-height: 42px;
+            padding: 0;
+            font-family: 'Caveat', cursive;
+            position: absolute;
+            top: 40%;
+            left: 70%;
+        }
+
+        #btn-start:hover {
+            background: pink;
+            color: saddlebrown;
+            font-size: 40px;
+
+        }
+
+
+        p {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 30px;
+            position: absolute;
+        }
+
+        .lose {
+            background-color: transparent
+        }
+
+        .lose2 {
+            height: 800px;
+            width: 800px;
+            background-image: url(./images/c2.png);
+            background-repeat: no-repeat;
+            background-size: contain;
+            z-index: 5;
+        }
+
+        h1 {
+            position: absolute;
+            color: black;
+            font-size: 50px;
+            top: 0px;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        h2 {
+            position: absolute;
+            color: black;
+            font-size: 30px;
+            top: 90px;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 鱷魚牙齒區 -->
+    <div class="game1">
+        <div id="mouth">
+            <div class="holes" style="top: 45%;left: 30%;"><img src="./images/left.png"></div>
+            <div class="holes" style="top: 49%;left:20%;"><img src="./images/left.png"></div>
+            <div class="holes" style="top: 53%;left:10%;"><img src="./images/left.png"></div>
+            <div class="holes" style="top: 60%;left: 5%;"><img src="./images/center.png"></div>
+            <div class="holes" style="top: 67%;left: 10%;"><img src="./images/center.png"></div>
+            <div class="holes" style="top: 72%;left: 18%;"><img src="./images/center.png"></div>
+            <div class="holes" style="top: 75%;left: 30%;"><img src="./images/right.png"></div>
+            <div class="holes" style="top: 72%;left: 40%;"><img src="./images/right.png"></div>
+            <div class="holes" style="top: 66%;left: 50%;"><img src="./images/right.png"></div>
+        </div>
+    </div>
+    <!-- 遊戲文字區 -->
+    <input type="button" value="start" id="btn-start">
+    <h1>鱷魚咬人小遊戲</h1>
+    <br>
+    <h2>把手伸進鱷魚嘴巴裡，隨機摸鱷魚牙齒測試你的好運氣</h2>
+
+    <pre><p>目前你撐了:<span id="text-score">0</span>秒</p>
+   <!-- <input type="button" value="Remember me" id="btn-start2"> -->
+    <br>
+    <p>最高紀錄玩家:<span id="highscore-player">-</span></p>
+    <br>
+    <p>總共撐了:<span id="highscore-score">-</span>秒</p>
+    <script>
+        // 抓id
+        const btnStart = document.getElementById('btn-start')
+        const btnStart2 = document.getElementById('btn-start2')
+        const holes = document.getElementsByClassName('holes')
+        const textScore = document.getElementById('text-score')
+        const textHighscorePlayer = document.getElementById('highscore-player')
+        const textHighscore = document.getElementById('highscore-score')
+        const game1 = document.getElementsByClassName('game1')
+        const mouth = document.getElementById('mouth')
+        // 外面會蓋掉裡面
+        let i = 0
+        // 紀錄玩家幾分的變數
+        let score = 0
+        let timer = 0
+        // 放在瀏覽器內的紀錄
+        let highscore = { name: '', score: 0 }
+        const highStorage = JSON.parse(localStorage.getItem('wam'))
+        if (highStorage !== null) {
+            highscore = highStorage
+            textHighscorePlayer.innerText = highscore.name
+            textHighscore.innerText = highscore.score
+        }
+
+        // 按下按鈕觸發timer 每一秒跑一個牙齒
+        btnStart.onclick = () => {
+            btnStart.disabled = true
+
+            // 開始跑計時器代入textScore(寫)
+            // let timer不要 改宣告在外面
+            timer = setInterval(() => {
+                i++
+                document.getElementById('text-score').innerText = i;
+            }, 1000);
+
+            timer2 = setInterval(game, 1000)
+            // 開始遊戲function
+            game()
+
+        }
+        const game = () => {
+            // 每跑一次移除一個自爆牙
+            for (const hole of holes) {
+                hole.classList.remove('lose')
+            }
+            // 九個牙中隨機跑一顆牙
+            for (let j = 0; j < 1; j++) {
+                const random = Math.floor(Math.random() * 9)
+                holes[random].classList.add('lose')
+            }
+
+
+
+        }
+
+        for (const hole of holes) {
+            hole.onclick = () => {
+
+                if (hole.classList.contains('lose')) {
+                    clearInterval(timer)
+                    clearInterval(timer2)
+                    textScore.innerText = i
+                    game1[0].classList.add('lose2')
+                    mouth.remove()
+                    game1[0].classList.add('cur')
+                    setTimeout(function () {
+                        if (i > highscore.score) {
+                            highscore.score = i
+                            highscore.name = prompt('目前你撐的最久! 請輸入名字')
+                            if (highscore.name === null || highscore.name.length === 0) {
+                                highscore.name = '無名氏'
+                            }
+                            textHighscorePlayer.innerText = highscore.name
+                            textHighscore.innerText = highscore.score
+                            localStorage.setItem('wam', JSON.stringify(highscore))
+                        }
+                    }
+                        , 500
+                    )
+
+                }
+
+
+            }
+
+        }
+
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>
